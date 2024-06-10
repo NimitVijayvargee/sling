@@ -13,7 +13,10 @@ reloading = False
 
 def update():
     global reloading
-    hpbar.bar_color = rgb(255-(player.hp *2.55), player.hp * 2.55, 0)
+    if held_keys['-'] and player.hp is not 0:
+        player.hp -= 1
+    if held_keys['='] and player.hp is not 100:
+        player.hp += 1
     if held_keys['escape']:
         quit()
     if held_keys['r']:
@@ -43,11 +46,6 @@ def get_gun():
 player = FirstPersonController()
 player.gun = None
 player.hp = 100
-hpbar = HealthBar(max_value=100, value=player.hp)
-
-ammunition = HealthBar(max_value=30, value=ammo, position = window.bottom_right)
-ammunition.bar_color = color.blue
-
 
 gun.on_click = get_gun
 def input(key):
