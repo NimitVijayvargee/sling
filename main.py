@@ -11,16 +11,24 @@ sky = Sky()
 floor = Entity(model='cube', scale=(10,1,10), position=(0,-10,0), collider='box',texture='/assets/textures/tile.png')
 reloading = False
 
+active_bullets = []
 def shoot():
-    global ammo
-    ammo -= 1
-    gun.rotation = (0,0,0)
-    bullet = Entity(parent=gun, model='cube', scale=(.1,.1,.5), color=color.black, position=(-0.3,1.5,0.3), collider='box')
-    bullet.world_parent = scene
-    bullet.animate_position(bullet.position+(bullet.forward*1000), curve=curve.linear, duration=4) #big number bullet far :O
-    invoke(TrailRenderer,size=[.1,.1], segments=2, min_spacing=.05, fade_speed=1, parent=bullet, color_gradient=[color.yellow, color.white], delay=0.3 )
-    gun.rotation = (0,270,0)
-    destroy(bullet, delay=3)
+    if not reloading:
+        global ammo, active_bullets
+        ammo -= 1
+        gun.rotation = (0,0,0)
+        bullet = Entity(parent=gun, model='cube', scale=(.05,.05,.25), color=color.yellow, position=(-0.3,1.5,0.3), collider='box')
+        bullet.world_parent = scene
+        active_bullets.append(bullet)
+        invoke(setattr,bullet,"color",color.black, delay=0.2)
+        hitinfo = raycast(bullet.position, bullet.rotation,distance=250, ignore=(active_bullets))
+        if hitinfo.hit:
+            distance = hitinfo.distance
+            bullet.animate_position(bullet.position+(bullet.forward*distance*0.25), curve=curve.linear, duration=4)
+        else:
+            bullet.animate_position(bullet.position+(bullet.forward*1000), curve=curve.linear, duration=4)
+        gun.rotation = (0,270,0)
+        destroy(bullet, delay=3)
 
 def update():
     global reloading
@@ -40,9 +48,7 @@ def update():
         if player.gun and not reloading:
             Audio(sound_file_name='/assets/soundfiles/reload.mp3')
             reloading=True
-            reload()
-    if not held_keys['r']:
-        reloading = False
+            invoke(reload,delay=2.5)
 
     if mouse.left and player.gun: 
         if ammo < 1:
@@ -53,8 +59,9 @@ def update():
         
 
 def reload():
-    global ammo
+    global ammo, reloading
     ammo = 40
+    reloading = False
 
 gun = Button(parent=scene, model='/assets/models/gun/ump45',  origin_y=-.5, position=(3,0,3), collider='box', color=color.black)
 def get_gun():
