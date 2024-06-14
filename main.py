@@ -8,7 +8,7 @@ app = Ursina(borderless=False,title='Sling')
 window.exit_button.visible = False
 
 sky = Sky()
-floor = Entity(model='cube', scale=(10,1,10), position=(0,-10,0), collider='box',texture='/assets/textures/tile.png')
+map = Entity(model='/assets/maps/map1.obj',texture='/assets/textures/tile.png', scale=.5, position=(-10,0,-10),rotate=Vec3(0,90,0), collider='mesh')
 reloading = False
 
 active_bullets = []
@@ -74,6 +74,7 @@ def get_gun():
     ammo = 40
 
 player = FirstPersonController()
+player.position = Vec3(0,50,0)
 player.gun = None
 player.hp = 100
 info = Text(text=f"HP: {player.hp}/100 \nAmmo:{ammo}/40")
