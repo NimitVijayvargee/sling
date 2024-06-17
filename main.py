@@ -2,33 +2,18 @@ from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 from ursina.prefabs.health_bar import HealthBar
 from ursina.prefabs.sky import Sky
-from ursina.prefabs.trail_renderer import TrailRenderer
+from gun import Gun
+
 ammo = 0
 app = Ursina(borderless=False,title='Sling')
 window.exit_button.visible = False
 
+
 sky = Sky()
-map = Entity(model='/assets/maps/map1.obj',texture='/assets/textures/tile.png', scale=.5, position=(-10,0,-10),rotate=Vec3(0,90,0), collider='mesh')
+map = Entity(model="cube",texture="assets/textures/tile.png", scale=(25,1,25), position=(0,-20,0), collider='mesh')
 reloading = False
 
 active_bullets = []
-def shoot():
-    if not reloading:
-        global ammo, active_bullets
-        ammo -= 1
-        gun.rotation = (0,0,0)
-        bullet = Entity(parent=gun, model='cube', scale=(.05,.05,.25), color=color.yellow, position=(-0.3,1.5,0.3), collider='box')
-        bullet.world_parent = scene
-        active_bullets.append(bullet)
-        invoke(setattr,bullet,"color",color.black, delay=0.2)
-        hitinfo = raycast(bullet.position, bullet.rotation,distance=250, ignore=(active_bullets))
-        if hitinfo.hit:
-            distance = hitinfo.distance
-            bullet.animate_position(bullet.position+(bullet.forward*distance*0.25), curve=curve.linear, duration=4)
-        else:
-            bullet.animate_position(bullet.position+(bullet.forward*1000), curve=curve.linear, duration=4)
-        gun.rotation = (0,270,0)
-        destroy(bullet, delay=3)
 
 def update():
     global reloading
@@ -46,7 +31,6 @@ def update():
         quit()
     if held_keys['r']:
         if player.gun and not reloading:
-            Audio(sound_file_name='/assets/soundfiles/reload.mp3')
             reloading=True
             invoke(reload,delay=2.5)
 
@@ -58,17 +42,15 @@ def update():
             Wait(1)
         
 
-def reload():
-    global ammo, reloading
-    ammo = 40
-    reloading = False
 
-gun = Button(parent=scene, model='/assets/models/gun/ump45',  origin_y=-.5, position=(3,0,3), collider='box', color=color.black)
-def get_gun():
-    gun.parent = camera
-    gun.position = Vec3(.5,-.6,.5)
-    gun.scale = (0.3,0.3,0.3)
-    gun.rotation = (0,270,0)
+
+gun = Gun()
+def get_gun(self):
+    entity = self.entity
+    entity.parent = camera
+    entity.position = Vec3(.5,-.6,.5)
+    entity.scale = (0.3,0.3,0.3)
+    entity.rotation = (0,270,0)
     player.gun = gun
     global ammo
     ammo = 40
