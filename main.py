@@ -4,7 +4,6 @@ from ursina.prefabs.health_bar import HealthBar
 from ursina.prefabs.sky import Sky
 from gun import Gun
 
-ammo = 0
 app = Ursina(borderless=False,title='Sling')
 window.exit_button.visible = False
 
@@ -17,8 +16,7 @@ active_bullets = []
 
 def update():
     global reloading
-    global ammo
-    info.text = f"HP: {player.hp}/100 \nAmmo:{ammo}/40"
+    info.text = f"HP: {player.hp}/100 \nAmmo:{gun.ammo}/40"
     if held_keys['-'] and player.hp is not 0:
         player.hp -= 1
     if held_keys['='] and player.hp is not 100:
@@ -30,37 +28,30 @@ def update():
     if held_keys['escape']:
         quit()
     if held_keys['r']:
-        if player.gun and not reloading:
-            reloading=True
-            invoke(reload,delay=2.5)
+        if gun.has_gun and not gun.reloading:
+            gun.reloading=True
+            Audio(sound_file_name=gun.reload_sound)
+            invoke(gun.reload,delay=2.5)
 
-    if mouse.left and player.gun: 
-        if ammo < 1:
+    if mouse.left and gun.has_gun: 
+        if gun.ammo < 1:
             return None
         else:
-            shoot()
+            gun.shoot()
             Wait(1)
         
 
 
 
-gun = Gun()
-def get_gun(self):
-    entity = self.entity
-    entity.parent = camera
-    entity.position = Vec3(.5,-.6,.5)
-    entity.scale = (0.3,0.3,0.3)
-    entity.rotation = (0,270,0)
-    player.gun = gun
-    global ammo
-    ammo = 40
+gun = Gun(parent=scene, model='/assets/models/gun/ump45', origin_y=-.5, position=(3,0,3), collider='box', color=color.black)
+
 
 player = FirstPersonController()
 player.position = Vec3(0,50,0)
-player.gun = None
+gun.has_gun = None
 player.hp = 100
-info = Text(text=f"HP: {player.hp}/100 \nAmmo:{ammo}/40")
-gun.on_click = get_gun
+info = Text(text=f"HP: {player.hp}/100 \nAmmo:{gun.ammo}/40")
+gun.on_click = gun.get_gun
     
 
 hookshot_target = Button(parent=scene, model='cube', color=color.brown, position=(4,5,5))
