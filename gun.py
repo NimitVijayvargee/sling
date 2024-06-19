@@ -1,43 +1,61 @@
 from ursina import *
 
 class Gun(Button):
-    reload_sound = "assets/soundfiles/reload.mp3"
-    shoot = "assets/soundfiles/pew.mp3"
-    bullets = 1
-    delay = 0
-    spread = 0
-    max_reload = 40
-    reloading = False
-    ammo = 0
-    active_bullets = []
+    reload_sound = "assets/soundfiles/reload.mp3"   # reload sound
+    pew = "assets/soundfiles/pew.mp3"               # pew pew sound
+    bullets = 7                                     # bullet count per shot        
+    delay = 1                                       # delay shooting; seconds
+    spread = 10                                     # bullet spread; degrees
+    max_reload = 5                                  # maximum gun reload
+    reloading = False                               # is gun reloading right now?
+    ammo = 0                                        # gun ammo (set to max reload when reloading or when gun picked up)
+    can_shoot = True                                # flag to check if gun can shoot
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def shoot(self):
-        if not self.reloading:
+        if self.can_shoot and not self.reloading:
+            self.can_shoot = False
+            invoke(self.allow_shooting, delay=self.delay)
+
+            # Initialize bullet
             self.ammo -= 1
-            self.rotation = (0,0,0)
-            bullet = Entity(parent=self, model='cube', scale=(.05,.05,.25), color=color.yellow, position=(-0.3,1.5,0.3), collider='box')
-            bullet.world_parent = scene
-            self.active_bullets.append(bullet)
-            invoke(setattr,bullet,"color",color.black, delay=0.2)
-            hitinfo = raycast(bullet.position, bullet.rotation,distance=250, ignore=tuple(self.active_bullets))
-            if hitinfo.hit:
-                distance = hitinfo.distance
-                bullet.animate_position(bullet.position+(bullet.forward*distance*0.25), curve=curve.linear, duration=4)
-            else:
-                bullet.animate_position(bullet.position+(bullet.forward*1000), curve=curve.linear, duration=4)
-            self.rotation = (0,270,0)
-            destroy(bullet, delay=3)
+            self.rotation = (0, 0, 0)
+            for _ in range(self.bullets):
+                Audio(sound_file_name=self.pew)
+                bullet = Entity(
+                    parent=self,
+                    model='cube',
+                    scale=(.05, .05, .25),
+                    color=color.yellow,
+                    position=(-0.3, 1.5, 0.3),
+                    collider='box',
+                    world_parent=scene
+                )
+
+                # Bullet motion
+                invoke(setattr, bullet, "color", color.black, delay=0.2)  # colour effect
+                bullet.rotation_x += random.randint(round(self.spread / -2), round(self.spread / 2))  # Bullet spread
+                bullet.rotation_y += random.randint(round(self.spread / -2), round(self.spread / 2))
+                bullet.rotation_z += random.randint(round(self.spread / -2), round(self.spread / 2))
+                bullet.animate_position(bullet.position + (bullet.forward * 1000), curve=curve.linear, duration=4)  # forward
+                destroy(bullet, delay=3)
+            
+            # Reset gun and destroy bullet
+            self.rotation = (0, 270, 0)
+
+    def allow_shooting(self):
+        self.can_shoot = True
 
     def get_gun(self):
         self.parent = camera
-        self.position = Vec3(.5,-.6,.5)
-        self.scale = (0.3,0.3,0.3)
-        self.rotation = (0,270,0)
-        self.ammo = 40
+        self.position = Vec3(.5, -.6, .5)
+        self.scale = (0.3, 0.3, 0.3)
+        self.rotation = (0, 270, 0)
+        self.ammo = self.max_reload
         self.has_gun = True
-    
+
     def reload(self):
         self.ammo = self.max_reload
         self.reloading = False
