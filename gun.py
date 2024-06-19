@@ -2,14 +2,14 @@ from ursina import *
 
 class Gun(Button):
     reload_sound = "assets/soundfiles/reload.mp3"   # reload sound
-    pew = "assets/soundfiles/pew.mp3"               # pew pew sound
+    pew = "assets/soundfiles/shotgun_pew.mp3"               # pew pew sound
     bullets = 7                                     # bullet count per shot        
-    delay = 1                                       # delay shooting; seconds
+    delay = 2                                      # delay shooting; seconds
     spread = 10                                     # bullet spread; degrees
     max_reload = 5                                  # maximum gun reload
     reloading = False                               # is gun reloading right now?
     ammo = 0                                        # gun ammo (set to max reload when reloading or when gun picked up)
-    can_shoot = True                                # flag to check if gun can shoot
+    can_shoot = True                                # is gun shooting right now?
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -22,8 +22,8 @@ class Gun(Button):
             # Initialize bullet
             self.ammo -= 1
             self.rotation = (0, 0, 0)
+            pewsound = Audio(sound_file_name=self.pew)
             for _ in range(self.bullets):
-                Audio(sound_file_name=self.pew)
                 bullet = Entity(
                     parent=self,
                     model='cube',
@@ -33,7 +33,7 @@ class Gun(Button):
                     collider='box',
                     world_parent=scene
                 )
-
+            
                 # Bullet motion
                 invoke(setattr, bullet, "color", color.black, delay=0.2)  # colour effect
                 bullet.rotation_x += random.randint(round(self.spread / -2), round(self.spread / 2))  # Bullet spread
@@ -44,7 +44,7 @@ class Gun(Button):
             
             # Reset gun and destroy bullet
             self.rotation = (0, 270, 0)
-
+            
     def allow_shooting(self):
         self.can_shoot = True
 
