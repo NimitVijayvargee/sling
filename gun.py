@@ -4,13 +4,17 @@ class Gun(Button):
     reload_sound = "assets/soundfiles/reload.mp3"   # reload sound
     pew = "assets/soundfiles/shotgun_pew.mp3"               # pew pew sound
     bullets = 7                                     # bullet count per shot        
-    delay = 2                                      # delay shooting; seconds
+    delay = 2                                       # delay shooting; seconds
     spread = 10                                     # bullet spread; degrees
+    damage = 10                                     # gun.damage like no shit
+    maxdist = 20                                    # max distance after which damage becomes 0 (damage reduces linearly,
+                                                    #                                            set to extremely large amount when working
+                                                    #                                             with snipers or long distance ARs)
     max_reload = 5                                  # maximum gun reload
     reloading = False                               # is gun reloading right now?
     ammo = 0                                        # gun ammo (set to max reload when reloading or when gun picked up)
     can_shoot = True                                # is gun shooting right now?
-
+    active_bullets = []                             # Active bullets (for collisions)
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -33,13 +37,15 @@ class Gun(Button):
                     collider='box',
                     world_parent=scene
                 )
-            
+
+                self.active_bullets.append(bullet)
                 # Bullet motion
                 invoke(setattr, bullet, "color", color.black, delay=0.2)  # colour effect
                 bullet.rotation_x += random.randint(round(self.spread / -2), round(self.spread / 2))  # Bullet spread
                 bullet.rotation_y += random.randint(round(self.spread / -2), round(self.spread / 2))
                 bullet.rotation_z += random.randint(round(self.spread / -2), round(self.spread / 2))
                 bullet.animate_position(bullet.position + (bullet.forward * 1000), curve=curve.linear, duration=4)  # forward
+
                 destroy(bullet, delay=3)
             
             # Reset gun and destroy bullet
