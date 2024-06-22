@@ -26,7 +26,7 @@ class Gun(Button):
 
             # Initialize bullet
             self.ammo -= 1
-            self.rotation = (0, 0, 0)
+            self.rotation = (0, -7, 0)
             pewsound = Audio(sound_file_name=self.pew)
             for _ in range(self.bullets):
                 bullet = Entity(

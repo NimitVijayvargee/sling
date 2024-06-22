@@ -2,16 +2,17 @@ from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 from ursina.prefabs.health_bar import HealthBar
 from ursina.prefabs.sky import Sky
+from ursina.shaders import colored_lights_shader as lit
 from gun import Gun
 from enemy import Enemy
 import time
 
 app = Ursina(borderless=False, title='Sling')
 window.exit_button.visible = False
-
-sky = Sky()
-map = Entity(model="cube", texture="assets/textures/tile.png", scale=(25, 1, 25), position=(0, -1, 0), collider='mesh')
-enemy = Enemy(model="assets/models/person", collider="box",rotation=(270,0,90), scale=0.3, color=color.blue)
+sky = Sky(color=color.black)
+map = Entity(model="cube", texture="assets/textures/tile.png", scale=(25, 1, 25),
+              position=(0, -1, 0), collider='mesh',shader=lit)
+enemy = Enemy(model="assets/models/person", collider="box",rotation=(270,0,90), scale=0.3, color=color.blue,shader=lit)
 
 reloading = False
 
@@ -59,16 +60,15 @@ def update():
         destroy(enemy,delay=1)
 
 
-gun = Gun(parent=scene, model='assets/models/gun/ump45', origin_y=-.5, position=(3, 0, 3), collider='box', color=color.black)
+gun = Gun(parent=scene, model='assets/models/gun/ump45', origin_y=-.5, position=(3, 0, 3), collider='box', color=color.black,shader=lit)
 
-player = FirstPersonController()
+player = FirstPersonController(shader=lit)
 player.position = Vec3(0, 50, 0)
 gun.has_gun = False
 player.hp = 100
 info = Text(text=f"HP: {player.hp}/100 \nAmmo: {gun.ammo}/{gun.max_reload}", position=window.top_left)
 gun.on_click = gun.get_gun
-hookshot_target = Button(parent=scene, model='cube', color=color.brown, position=(4, 5, 5))
-hookshot_target.on_click = Func(player.animate_position, (hookshot_target.x, hookshot_target.y - 2, hookshot_target.z), duration=.5, curve=curve.linear)
- 
+lightbulb = Entity(parent=Entity(),x=2,y=3, model='cube', color=color.yellow, position=(4, 1, 5), shadows=True)
+lighting = DirectionalLight(parent=lightbulb) 
 app.run()
 
