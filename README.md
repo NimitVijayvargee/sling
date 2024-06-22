@@ -1,2 +1,2 @@
-# sling
-A singleplayer parkour - grapple style game with guns!
+# Pool Loop
+A liminal spaces poolroom game! (currently working on the poolroom part)

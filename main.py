@@ -66,9 +66,9 @@ player.position = Vec3(0, 50, 0)
 gun.has_gun = False
 player.hp = 100
 info = Text(text=f"HP: {player.hp}/100 \nAmmo: {gun.ammo}/{gun.max_reload}", position=window.top_left)
-
 gun.on_click = gun.get_gun
 hookshot_target = Button(parent=scene, model='cube', color=color.brown, position=(4, 5, 5))
 hookshot_target.on_click = Func(player.animate_position, (hookshot_target.x, hookshot_target.y - 2, hookshot_target.z), duration=.5, curve=curve.linear)
-
+ 
 app.run()
+

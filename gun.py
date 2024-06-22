@@ -8,8 +8,9 @@ class Gun(Button):
     spread = 10                                     # bullet spread; degrees
     damage = 10                                     # gun.damage like no shit
     maxdist = 20                                    # max distance after which damage becomes 0 (damage reduces linearly,
-                                                    #                                            set to extremely large amount when working
-                                                    #                                             with snipers or long distance ARs)
+                                                    # set to extremely large amount when working
+                                                    # with snipers or long distance ARs)
+    recoil = 10                                     #player recoil
     max_reload = 5                                  # maximum gun reload
     reloading = False                               # is gun reloading right now?
     ammo = 0                                        # gun ammo (set to max reload when reloading or when gun picked up)
@@ -49,6 +50,9 @@ class Gun(Button):
                 destroy(bullet, delay=3)
             
             # Reset gun and destroy bullet
+            player = self.parent.parent #grandparent of the gun is the player
+            player.animate_rotation((player.rotation_x - self.recoil, player.rotation_y, player.rotation_z), duration=0.2)
+            player.animate_rotation((player.rotation_x + (self.recoil-10), player.rotation_y, player.rotation_z), duration=1, delay=0.25)
             self.rotation = (0, 270, 0)
             
     def allow_shooting(self):
