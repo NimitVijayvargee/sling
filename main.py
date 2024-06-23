@@ -3,19 +3,31 @@ from ursina.prefabs.first_person_controller import FirstPersonController
 from ursina.prefabs.health_bar import HealthBar
 from ursina.prefabs.sky import Sky
 from ursina.shaders import colored_lights_shader as lit
+from os import remove as delete
+from os import makedirs as createfolder
+#my external code stuffs
 from gun import Gun
 from enemy import Enemy
-import time
+import tile
 
-app = Ursina(borderless=False, title='Sling')
+app = Ursina(borderless=False, title='PoolLoop')
 window.exit_button.visible = False
-sky = Sky(color=color.black)
-map = Entity(model="cube", texture="assets/textures/tile.png", scale=(25, 1, 25),
-              position=(0, -1, 0), collider='mesh',shader=lit)
-enemy = Enemy(model="assets/models/person", collider="box",rotation=(270,0,90), scale=0.3, color=color.blue,shader=lit)
+sky = Sky()
+enemy = Enemy(model="assets/models/person", collider="box",rotation=(270,0,90), scale=0.3, color=color.blue)
 
 reloading = False
 
+def genMap():
+    x_len, z_len = random.randint(10,30),random.randint(10,30)
+    tile.repeat_texture('assets/textures/pooltile.png',x_len,z_len)
+    Entity(texture = f"/assets/textures/pooltile_temps/pooltile_{x_len}x{z_len}.png",
+            model = 'plane',
+            collider = 'box',
+            scale = (2*x_len,2,2*z_len),
+            position=((x_len / -2),-4,(z_len / -2))
+            )
+
+genMap()
 def update():
     global reloading,enemy
     info.text = f"HP: {player.hp}/100 \nAmmo: {gun.ammo}/{gun.max_reload}"
@@ -60,7 +72,7 @@ def update():
         destroy(enemy,delay=1)
 
 
-gun = Gun(parent=scene, model='assets/models/gun/ump45', origin_y=-.5, position=(3, 0, 3), collider='box', color=color.black,shader=lit)
+gun = Gun(parent=scene, model='assets/models/gun/ump45', origin_y=-.5, position=(3, 0, 3), collider='box', color=color.black)
 
 player = FirstPersonController(shader=lit)
 player.position = Vec3(0, 50, 0)
@@ -68,7 +80,5 @@ gun.has_gun = False
 player.hp = 100
 info = Text(text=f"HP: {player.hp}/100 \nAmmo: {gun.ammo}/{gun.max_reload}", position=window.top_left)
 gun.on_click = gun.get_gun
-lightbulb = Entity(parent=Entity(),x=2,y=3, model='cube', color=color.yellow, position=(4, 1, 5), shadows=True)
-lighting = DirectionalLight(parent=lightbulb) 
-app.run()
 
+app.run()
