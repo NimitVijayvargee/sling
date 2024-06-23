@@ -32,11 +32,12 @@ class Gun(Button):
                 bullet = Entity(
                     parent=self,
                     model='cube',
-                    scale=(.05, .05, .25),
+                    scale=(.02, .02, .25),
                     color=color.yellow,
                     position=(-0.3, 1.5, 0.3),
                     collider='box',
-                    world_parent=scene
+                    world_parent=scene,
+                    shader = None #bullet shaders look uglt asf lmao 😂😂😂😂😂😂
                 )
 
                 self.active_bullets.append(bullet)
