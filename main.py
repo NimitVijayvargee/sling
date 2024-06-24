@@ -15,7 +15,12 @@ app = Ursina(borderless=False, title='PoolLoop')
 window.exit_button.visible = False
 sky = Sky()
 enemy = Enemy(model="assets/models/person", collider="box",rotation=(270,0,90), scale=0.3, color=color.blue)
-
+for x in os.listdir("assets/textures/pooltile_temps"):
+            try:
+                os.remove(f"assets/textures/pooltile_temps/{x}")
+            except:
+                print(f'failed to remove file {x}')
+                
 scene.fog_density = (50, 200)
 scene.fog_color = rgb(3, 87, 76)
 reloading = False
