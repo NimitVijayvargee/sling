@@ -13,20 +13,24 @@ def random_colour(r_limit, g_limit, b_limit):
     return f"#{r:02x}{g:02x}{b:02x}"
 
 def repeat_texture(texture_path, x_len, z_len):
-    texture = Image.open(texture_path)
-    texture_width, texture_height = texture.size
-    new_width = texture_width * x_len
-    new_height = texture_height * z_len
-    new_image = Image.new('RGB', (new_width, new_height))
+    try:
+        texture = Image.open(f"assets/textures/pooltile_temps/pooltile_{x_len}x{z_len}.png")
+        return texture
+    except:
+        texture = Image.open(texture_path)
+        texture_width, texture_height = texture.size
+        new_width = texture_width * x_len
+        new_height = texture_height * z_len
+        new_image = Image.new('RGB', (new_width, new_height))
 
-    recoulered_texture = ImageDraw.Draw(texture)
-    for i in range(x_len):
-        for j in range(z_len):
-            colour = random_colour((0, 20), (100, 255), (180, 255))
-            recoulered_texture.rectangle([(1, 1), (14, 14)], fill=colour)
-            new_image.paste(texture, (i * texture_width, j * texture_height))
+        recoulered_texture = ImageDraw.Draw(texture)
+        for i in range(x_len):
+            for j in range(z_len):
+                colour = random_colour((0, 20), (100, 255), (180, 255))
+                recoulered_texture.rectangle([(1, 1), (14, 14)], fill=colour)
+                new_image.paste(texture, (i * texture_width, j * texture_height))
 
-    new_image.save(f"assets/textures/pooltile_temps/pooltile_{x_len}x{z_len}.png")
+        new_image.save(f"assets/textures/pooltile_temps/pooltile_{x_len}x{z_len}.png")
 
 def genPlane(offset, rotate=(0, 0, 0), x_len=None, z_len=None):
     x_offset, y_offset, z_offset = offset
@@ -47,4 +51,11 @@ def genPlane(offset, rotate=(0, 0, 0), x_len=None, z_len=None):
 
 def genRoom(offset, size):
     x, y, z = size
-    genPlane(offset, (0,))
+    xo,yo,zo = offset
+    print(x,y,z,"\n",xo,yo,zo)
+    genPlane(offset, (0,0,0), x*7,z*7)       #floor
+    genPlane((xo,yo+y,zo), (0,0,180), x*8,z*8)     #ceiling
+    genPlane((xo,yo,zo-z), (90,0,0), x*8,y*8)
+    genPlane((xo,yo,zo+z), (270,0,0), x*8,y*8)
+    genPlane((xo-x,yo,zo), (0,0,90), x*8,y*8)
+    genPlane((xo+x,yo,zo), (0,0,270), x*8,y*8)
